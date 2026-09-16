@@ -1,0 +1,241 @@
+{
+  "model": "pocket-tts-zh-en-pinyin (int8-only vendor ONNX)",
+  "board": "AX650N root@10.126.29.50",
+  "date": "2026-09-16",
+  "reference": "Vivian.wav",
+  "runtime": {
+    "flow_prefill_ar": "CPU ORT int8 (vendor QOperator graph)",
+    "flow_net": "NPU FP32 axmodel (baked decode_steps)",
+    "mimi_transformer": "CPU fp32",
+    "mimi_conv": "NPU U16 axmodel",
+    "encoder": "NPU static tier 40f",
+    "frontend": "pinyin (tokens.txt + pypinyin TONE3 + SPM), numbers_to_zh"
+  },
+  "summary": {
+    "mean_rtf": 0.7979,
+    "mean_first_frame_ms": 204.7,
+    "load_s": 4.606,
+    "n_measured": 10,
+    "cer_zero_texts": [
+      "zh_short",
+      "zh_notice",
+      "zh_long",
+      "en_short",
+      "mix_short",
+      "zh_duoyin",
+      "zh_number",
+      "zh_brand",
+      "en_long"
+    ],
+    "cer_note": "常规中英文本 CER 0%；绕口令 25%（ASR 极限）；mix_long 9.26%"
+  },
+  "items": [
+    {
+      "tag": "zh_short",
+      "tokens": 18,
+      "chunks": 1,
+      "audio_s": 3.2,
+      "total_s": 2.925,
+      "rtf": 0.9141,
+      "first_frame_ms": 464.5,
+      "warmup": true,
+      "cer": 0.0
+    },
+    {
+      "tag": "zh_notice",
+      "tokens": 45,
+      "chunks": 1,
+      "audio_s": 9.2,
+      "total_s": 7.904,
+      "rtf": 0.8591,
+      "first_frame_ms": 207.1,
+      "warmup": false,
+      "cer": 0.0
+    },
+    {
+      "tag": "zh_long",
+      "tokens": 93,
+      "chunks": 3,
+      "audio_s": 19.2,
+      "total_s": 15.497,
+      "rtf": 0.8072,
+      "first_frame_ms": 249.6,
+      "warmup": false,
+      "cer": 0.0
+    },
+    {
+      "tag": "en_short",
+      "tokens": 12,
+      "chunks": 1,
+      "audio_s": 3.6,
+      "total_s": 2.831,
+      "rtf": 0.7865,
+      "first_frame_ms": 145.7,
+      "warmup": false,
+      "cer": 0.0
+    },
+    {
+      "tag": "mix_short",
+      "tokens": 29,
+      "chunks": 1,
+      "audio_s": 7.2,
+      "total_s": 5.686,
+      "rtf": 0.7897,
+      "first_frame_ms": 158.3,
+      "warmup": false,
+      "cer": 0.0
+    },
+    {
+      "tag": "zh_tongue",
+      "tokens": 20,
+      "chunks": 1,
+      "audio_s": 5.76,
+      "total_s": 4.572,
+      "rtf": 0.7937,
+      "first_frame_ms": 220.5,
+      "warmup": false,
+      "cer": 25.0
+    },
+    {
+      "tag": "zh_duoyin",
+      "tokens": 24,
+      "chunks": 1,
+      "audio_s": 5.52,
+      "total_s": 4.253,
+      "rtf": 0.7705,
+      "first_frame_ms": 227.8,
+      "warmup": false,
+      "cer": 0.0
+    },
+    {
+      "tag": "zh_number",
+      "tokens": 28,
+      "chunks": 1,
+      "audio_s": 6.72,
+      "total_s": 5.231,
+      "rtf": 0.7784,
+      "first_frame_ms": 162.6,
+      "warmup": false,
+      "cer": 0.0
+    },
+    {
+      "tag": "zh_brand",
+      "tokens": 21,
+      "chunks": 1,
+      "audio_s": 4.08,
+      "total_s": 3.16,
+      "rtf": 0.7746,
+      "first_frame_ms": 148.9,
+      "warmup": false,
+      "cer": 0.0
+    },
+    {
+      "tag": "en_long",
+      "tokens": 25,
+      "chunks": 1,
+      "audio_s": 7.28,
+      "total_s": 5.85,
+      "rtf": 0.8035,
+      "first_frame_ms": 190.8,
+      "warmup": false,
+      "cer": 0.0
+    },
+    {
+      "tag": "mix_long",
+      "tokens": 31,
+      "chunks": 1,
+      "audio_s": 8.56,
+      "total_s": 6.984,
+      "rtf": 0.8159,
+      "first_frame_ms": 335.6,
+      "warmup": false,
+      "cer": 9.26
+    }
+  ],
+  "vendor_baseline_host": {
+    "load_s": 0.695,
+    "runs": [
+      {
+        "tag": "zh_short",
+        "tokens": 18,
+        "audio_s": 3.28,
+        "rtf": 0.211,
+        "first_frame_ms": 62.5
+      },
+      {
+        "tag": "zh_notice",
+        "tokens": 45,
+        "audio_s": 9.28,
+        "rtf": 0.2174,
+        "first_frame_ms": 68.1
+      },
+      {
+        "tag": "zh_long",
+        "tokens": 93,
+        "audio_s": 18.48,
+        "rtf": 0.2362,
+        "first_frame_ms": 86.2
+      },
+      {
+        "tag": "en_short",
+        "tokens": 12,
+        "audio_s": 3.76,
+        "rtf": 0.2117,
+        "first_frame_ms": 77.6
+      },
+      {
+        "tag": "mix_short",
+        "tokens": 29,
+        "audio_s": 7.12,
+        "rtf": 0.1992,
+        "first_frame_ms": 75.1
+      },
+      {
+        "tag": "zh_tongue",
+        "tokens": 20,
+        "audio_s": 5.92,
+        "rtf": 0.1954,
+        "first_frame_ms": 62.7
+      },
+      {
+        "tag": "zh_duoyin",
+        "tokens": 24,
+        "audio_s": 5.28,
+        "rtf": 0.211,
+        "first_frame_ms": 61.6
+      },
+      {
+        "tag": "zh_number",
+        "tokens": 28,
+        "audio_s": 6.32,
+        "rtf": 0.197,
+        "first_frame_ms": 64.2
+      },
+      {
+        "tag": "zh_brand",
+        "tokens": 21,
+        "audio_s": 3.84,
+        "rtf": 0.2023,
+        "first_frame_ms": 66.1
+      },
+      {
+        "tag": "en_long",
+        "tokens": 25,
+        "audio_s": 7.36,
+        "rtf": 0.1983,
+        "first_frame_ms": 62.3
+      },
+      {
+        "tag": "mix_long",
+        "tokens": 31,
+        "audio_s": 7.2,
+        "rtf": 0.2005,
+        "first_frame_ms": 66.2
+      }
+    ]
+  },
+  "notes": [
+    "PCM cos vs vendor is NOT a metric: this model diverges on ~1e-6 perturbations (baked flow_net/NPU FP32)",
+    "exact mode available: NPU_FLOW_NET=0 (flow_net on CPU raw ONNX, bit-identical to vendor)"
+  ]
+}

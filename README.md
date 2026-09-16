@@ -31,6 +31,21 @@
 | 回环 CER（SenseVoiceSmall） | 常规中英文本 **0%**；多音字 0%；绕口令 25%（ASR 极限） |
 | vendor int8（主机 CPU 对照） | RTF ≈0.20，同文本 CER 一致 |
 
+
+### 统一 benchmark（Voice_Test.AXERA，含 ASR 地板对照）
+
+| 数据集 | 指标 | **拼音版** | zh-en 字符版 | ASR 地板 | 热启动 RTF |
+|---|---|---:|---:|---:|---:|
+| aishell3（200 条，zh） | 回环 CER | 11.95% | 8.46% | 2.90% | 0.8598 |
+| ljspeech（200 条，en） | 回环 WER | **5.42%** | 7.84% | 5.81% | 0.7503 |
+| zh_long（40 条，zh） | 回环 CER | 1.11% | 0.68% | — | **0.7618** |
+| zh_hardcase（150 条，zh） | 回环 CER | 4.58% | 2.46% | — | 0.7609 |
+
+口径：ASR=firered（benchmark 统一口径），RTF 不含模型加载；结果写入
+`ZY-2012/Voice_Test.AXERA` 的 `results/tts.csv`（提交 `0105ee0`）。
+拼音版英文明显更好（WER 5.42%），中文短句因语速较快（len_ratio 0.53）略逊。
+
+
 ## 运行时架构（混合 NPU / CPU）
 
 | 阶段 | 后端 | 模型 |

@@ -237,5 +237,35 @@
   "notes": [
     "PCM cos vs vendor is NOT a metric: this model diverges on ~1e-6 perturbations (baked flow_net/NPU FP32)",
     "exact mode available: NPU_FLOW_NET=0 (flow_net on CPU raw ONNX, bit-identical to vendor)"
-  ]
+  ],
+  "benchmark": {
+    "repo": "ZY-2012/Voice_Test.AXERA @ 0105ee0",
+    "asr": "firered",
+    "runs": {
+      "aishell3_zh_200": {
+        "metric": "cer_loopback",
+        "value": 11.9502,
+        "gt_floor": 2.9046,
+        "rtf": 0.8598,
+        "len_ratio": 0.5288
+      },
+      "ljspeech_en_200": {
+        "metric": "wer_loopback",
+        "value": 5.4231,
+        "gt_floor": 5.8105,
+        "rtf": 0.7503,
+        "len_ratio": 0.8532
+      },
+      "zh_long_zh_40": {
+        "metric": "cer_loopback",
+        "value": 1.1116,
+        "rtf": 0.7618
+      },
+      "zh_hardcase_zh_150": {
+        "metric": "cer_loopback",
+        "value": 4.5832,
+        "rtf": 0.7609
+      }
+    }
+  }
 }

@@ -24,10 +24,11 @@
 
 ## 实测指标（AX650N，参考音色 Vivian）
 
-| 项目 | 数值 |
-|---|---|
-| 平均 RTF（11 条中英文本，Python 混合运行时） | **0.798** |
-| 首帧延迟（含音色编码+prefill） | **205 ms** |
+| 项目 | Python 运行时 | **C++ 运行时（推荐）** |
+|---|---|---|
+| 平均 RTF（11 条中英文本） | 0.798（fp32 mimi_tf）→ **~0.74**（int8 mimi_tf） | — |
+| 长文（zh_long） | 0.740（int8 mimi_tf） | **0.40~0.44** |
+| 首帧延迟 | 205 ms | **~130 ms** |
 | 回环 CER（SenseVoiceSmall） | 常规中英文本 **0%**；多音字 0%；绕口令 25%（ASR 极限） |
 | vendor int8（主机 CPU 对照） | RTF ≈0.20，同文本 CER 一致 |
 
@@ -45,6 +46,27 @@
 `ZY-2012/Voice_Test.AXERA` 的 `results/tts.csv`（提交 `0105ee0`）。
 拼音版英文明显更好（WER 5.42%），中文短句因语速较快（len_ratio 0.53）略逊。
 
+
+## C++ 运行时（推荐，更快）
+
+源码在 `cpp/`（aarch64 ONNX Runtime 1.23 + axengine），文本分词在主机侧完成：
+
+```bash
+# 主机：生成 request（每行一个分块的 token ids，拼音前端与板端一致）
+python python/prepare_tokens.py --text "你好，世界。" --out req.tokens
+# 交叉编译（工具链/BSP/ORT 路径可用环境变量覆盖）
+TOOLCHAIN_ROOT=/path/to/gcc-arm-9.2-aarch64 BSP_MSP_DIR=/path/to/ax650n_bsp_sdk/msp/out \
+ONNXRUNTIME_DIR=/path/to/onnxruntime-linux-aarch64-1.23.0 bash cpp/build_ax650.sh
+# 板端（HF 包内已附预编译二进制）
+LD_LIBRARY_PATH=cpp/bin ./bin/pocket_tts_zh_en --models-dir models --reference models/Vivian.wav \
+  --tokens-file req.tokens --output out.wav --threads 5 --prefill-threads 8 --mimi-threads 2 \
+  --flow-ar-model flow_ar_step_fused.onnx --flow-prefill-model flow_step_windowed.onnx
+```
+
+加速项（实测）：`mimi transformer` ORT int8（CPU 22→15.5ms/帧）、
+**跨帧流水线**（主线程 Flow-AR+flow_net ∥ worker Mimi 解码）、
+**注意力融合**（每层布局/mask 链/Softmax → opset-23 `Attention`，674→518 节点，数值等价）、
+线程 AR=5/mimi=2。结果：**zh_short RTF ≈0.43 / zh_long ≈0.40~0.44**（Python 同配置约 0.74）。
 
 ## 运行时架构（混合 NPU / CPU）
 
@@ -95,6 +117,7 @@ bash run_ax650.sh "你好，世界。" out.wav
 configs/     # 基线/试听文本集
 python/      # 拆图、补丁、静态化、校准、Pulsar2 配置、拼音前端、验证、CER
 board/       # AX650 运行时（axengine + onnxruntime，含拼音前端）与批量驱动
+cpp/         # C++ 运行时（跨帧流水线 + 注意力融合，ORT 1.23 + axengine）
 scripts/     # ax650 量化脚本
 docs/        # M0–M4 报告、基线指标、试听集 CER 表
 ```

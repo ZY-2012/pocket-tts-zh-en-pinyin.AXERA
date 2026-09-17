@@ -96,6 +96,14 @@ NPU_FLOW_NET=0 bash run_ax650.sh ...   # 精确 CPU flow_net（与 vendor 逐位
 实测（AX650N，拼音版）：Python 混合 RTF **0.798**、首帧 205ms、常规中英 CER **0%**；
 vendor int8（主机）RTF ≈0.20。
 
+省时增项（不改质量口径，全部实测）：
+- `mimi transformer` 再跑一遍 ORT 动态 int8（float 子图不算双重量化）：zh_long 0.8227→**0.7398**，CER 0%。
+- **QOperator 图的注意力融合**：out_proj 是 `MatMulInteger`、无 fp32 锚点 → 从每个 `Softmax` 反查
+  `Where→Div→MatMul(QK)`，AV `MatMul` 后沿 `Transpose→Reshape` 找到 `DynamicQuantizeLinear` 的输入，
+  把该输入改接 opset-23 `Attention` 输出即可（int8 投影保留），674→518 节点、maxd≤1e-6 → AR −7%。
+- C++ 侧复用 zh-en 工程（`--flow-prefill-model` / 硬编码 `mimi_split/mimi_transformer_step_int8.onnx` /
+  交叉编译 lib `NEEDED=libonnxruntime.so.1` 要补软链）：zh_long RTF **0.40~0.44**（Python 0.74），首帧 ~130ms。
+
 ## 与其它 skill 的关系
 
 | skill | 起点 | 场景 |

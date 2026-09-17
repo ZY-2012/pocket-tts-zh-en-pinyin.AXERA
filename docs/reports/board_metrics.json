@@ -1,12 +1,12 @@
 {
   "model": "pocket-tts-zh-en-pinyin (int8-only vendor ONNX)",
   "board": "AX650N root@10.126.29.50",
-  "date": "2026-09-16",
+  "date": "2026-09-17",
   "reference": "Vivian.wav",
   "runtime": {
-    "flow_prefill_ar": "CPU ORT int8 (vendor QOperator graph)",
+    "flow_prefill_ar": "CPU ORT int8 (vendor QOperator graph; fused-attention variant recommended)",
     "flow_net": "NPU FP32 axmodel (baked decode_steps)",
-    "mimi_transformer": "CPU fp32",
+    "mimi_transformer": "CPU int8 ORT dynamic quant (6.6MB, recommended; fp32 25.5MB fallback)",
     "mimi_conv": "NPU U16 axmodel",
     "encoder": "NPU static tier 40f",
     "frontend": "pinyin (tokens.txt + pypinyin TONE3 + SPM), numbers_to_zh"
@@ -28,6 +28,30 @@
       "en_long"
     ],
     "cer_note": "常规中英文本 CER 0%；绕口令 25%（ASR 极限）；mix_long 9.26%"
+  },
+  "optimized_20260917": {
+    "note": "与上表同模型的省时改造；python 数字来自统一 benchmark（TTS_FRESH=1 重跑），C++ 为板端同会话交替 A/B",
+    "mimi_transformer_int8": "CPU mimi_tf 阶段 22.0 → 15.5 ms/帧（Python 4 线程）；benchmark RTF 全面 -10~11%",
+    "python_benchmark_rtf": {
+      "aishell3": 0.7631,
+      "ljspeech": 0.6684,
+      "zh_long": 0.6865,
+      "zh_hardcase": 0.6776,
+      "mean": 0.6989,
+      "commit": "ZY-2012/Voice_Test.AXERA @ b8cadbf"
+    },
+    "cxx": {
+      "ar_model": "flow_ar_step_fused.onnx (opset-23 Attention, 674→518 节点, maxd≤1e-6)",
+      "threads": "AR=5 prefill=8 mimi=2",
+      "zh_short_rtf": [0.421, 0.410],
+      "zh_short_first_frame_ms": [146.3, 133.1],
+      "zh_long_rtf_fused": [0.4061, 0.4044],
+      "zh_long_rtf_unfused": [0.4341, 0.4371],
+      "zh_long_first_frame_ms": [140.7, 141.2],
+      "stage_ms_fused": {"AR": 30.3, "flow_net": 1.7, "mimi_tf": 22.5, "mimi_conv": 1.4},
+      "stage_ms_unfused": {"AR": 32.8, "flow_net": 1.7, "mimi_tf": 22.6, "mimi_conv": 1.4},
+      "note": "跨帧流水线下 AR 为关键路径；mimi_tf 22ms 被隐藏；C++ 回环 CER 0%"
+    }
   },
   "items": [
     {
@@ -239,32 +263,33 @@
     "exact mode available: NPU_FLOW_NET=0 (flow_net on CPU raw ONNX, bit-identical to vendor)"
   ],
   "benchmark": {
-    "repo": "ZY-2012/Voice_Test.AXERA @ 0105ee0",
+    "repo": "ZY-2012/Voice_Test.AXERA @ b8cadbf",
     "asr": "firered",
+    "config_note": "int8 mimi_tf + 未融合 AR，threads=4；TTS_FRESH=1 全量重合成",
     "runs": {
       "aishell3_zh_200": {
         "metric": "cer_loopback",
-        "value": 11.9502,
+        "value": 12.4481,
         "gt_floor": 2.9046,
-        "rtf": 0.8598,
+        "rtf": 0.7631,
         "len_ratio": 0.5288
       },
       "ljspeech_en_200": {
         "metric": "wer_loopback",
-        "value": 5.4231,
+        "value": 5.4827,
         "gt_floor": 5.8105,
-        "rtf": 0.7503,
+        "rtf": 0.6684,
         "len_ratio": 0.8532
       },
       "zh_long_zh_40": {
         "metric": "cer_loopback",
-        "value": 1.1116,
-        "rtf": 0.7618
+        "value": 1.1600,
+        "rtf": 0.6865
       },
       "zh_hardcase_zh_150": {
         "metric": "cer_loopback",
-        "value": 4.5832,
-        "rtf": 0.7609
+        "value": 4.2968,
+        "rtf": 0.6776
       }
     }
   }

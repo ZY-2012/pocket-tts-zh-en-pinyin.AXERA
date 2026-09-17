@@ -26,9 +26,11 @@
 
 | 项目 | Python 运行时 | **C++ 运行时（推荐）** |
 |---|---|---|
-| 平均 RTF（11 条中英文本） | 0.798（fp32 mimi_tf）→ **~0.74**（int8 mimi_tf） | — |
-| 长文（zh_long） | 0.740（int8 mimi_tf） | **0.40~0.44** |
-| 首帧延迟 | 205 ms | **~130 ms** |
+| 平均 RTF（benchmark 4 数据集） | 0.798 → **0.70**（int8 mimi_tf） | — |
+| zh_long | 0.687（int8 mimi_tf） | **0.40~0.44** |
+| zh_short | 0.767（aishell3 均长 1.25s 口径） | **0.41~0.42** |
+| 首帧延迟 | 205 ms | **133~146 ms** |
+| 相对基线（fp32 mimi_tf） | **-10~11%**（mimi_tf 22→15.5ms/帧） | AR 融合再 -7%（AR 32.8→30.3ms） |
 | 回环 CER（SenseVoiceSmall） | 常规中英文本 **0%**；多音字 0%；绕口令 25%（ASR 极限） |
 | vendor int8（主机 CPU 对照） | RTF ≈0.20，同文本 CER 一致 |
 
@@ -37,14 +39,16 @@
 
 | 数据集 | 指标 | **拼音版** | zh-en 字符版 | ASR 地板 | 热启动 RTF |
 |---|---|---:|---:|---:|---:|
-| aishell3（200 条，zh） | 回环 CER | 11.95% | 8.46% | 2.90% | 0.8598 |
-| ljspeech（200 条，en） | 回环 WER | **5.42%** | 7.84% | 5.81% | 0.7503 |
-| zh_long（40 条，zh） | 回环 CER | 1.11% | 0.68% | — | **0.7618** |
-| zh_hardcase（150 条，zh） | 回环 CER | 4.58% | 2.46% | — | 0.7609 |
+| aishell3（200 条，zh） | 回环 CER | 12.45% | 8.46% | 2.90% | 0.7631 |
+| ljspeech（200 条，en） | 回环 WER | **5.48%** | 7.84% | 5.81% | 0.6684 |
+| zh_long（40 条，zh） | 回环 CER | 1.16% | 0.68% | — | **0.6865** |
+| zh_hardcase（150 条，zh） | 回环 CER | 4.30% | 2.46% | — | 0.6776 |
 
-口径：ASR=firered（benchmark 统一口径），RTF 不含模型加载；结果写入
-`ZY-2012/Voice_Test.AXERA` 的 `results/tts.csv`（提交 `0105ee0`）。
-拼音版英文明显更好（WER 5.42%），中文短句因语速较快（len_ratio 0.53）略逊。
+口径：ASR=firered（benchmark 统一口径），RTF 不含模型加载，**int8 mimi_tf**
+（`TTS_FRESH=1` 全量重合成，非缓存）；结果写入
+`ZY-2012/Voice_Test.AXERA` 的 `results/tts.csv`（提交 `b8cadbf`）。
+拼音版英文明显更好（WER 5.48%），中文短句因语速较快（len_ratio 0.53）略逊；
+CER 相对旧版 ±0.5pp 内波动（ASR 底噪，改的是 CPU mimi 精度而非声学模型）。
 
 
 ## C++ 运行时（推荐，更快）
